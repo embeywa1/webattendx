@@ -219,8 +219,8 @@ export type Database = {
       }
       is_on_roster: { Args: { _class_id: string }; Returns: boolean }
       owns_class: { Args: { _class_id: string }; Returns: boolean }
-      roster_class: { Args: { _class_student_id: string }; Returns: string }
-      session_class: { Args: { _session_id: string }; Returns: string }
+      owns_roster_row: { Args: { _class_student_id: string }; Returns: boolean }
+      owns_session: { Args: { _session_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "faculty" | "student"
