@@ -6,9 +6,16 @@ import { ErrorBanner, Spinner } from "@/components/ui/state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { dashboardPathFor, fetchRole, signIn, signUp, type AppRole } from "@/services/authApi";
+import {
+  dashboardPathFor,
+  fetchRole,
+  requestPasswordReset,
+  signIn,
+  signUp,
+  type AppRole,
+} from "@/services/authApi";
 
-type Mode = "signin" | "signup";
+type Mode = "signin" | "signup" | "forgot";
 
 export function LoginForm() {
   const navigate = useNavigate();
@@ -29,7 +36,8 @@ export function LoginForm() {
     passwordValid &&
     fullName.trim().length > 1 &&
     (role === "faculty" || rollNumber.trim().length > 0);
-  const canSubmit = mode === "signin" ? emailValid && passwordValid : signupValid;
+  const canSubmit =
+    mode === "signin" ? emailValid && passwordValid : mode === "forgot" ? emailValid : signupValid;
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -42,6 +50,9 @@ export function LoginForm() {
         const result = await signIn(email.trim(), password);
         const nextRole = await fetchRole(result.user.id);
         void navigate({ to: dashboardPathFor(nextRole) });
+      } else if (mode === "forgot") {
+        await requestPasswordReset(email.trim());
+        setNotice("If that email has an account, a reset link is on its way. Check your inbox.");
       } else {
         const result = await signUp({
           email: email.trim(),
@@ -78,7 +89,11 @@ export function LoginForm() {
             Attend<span className="text-primary">X</span>
           </h1>
           <p className="terminal-label">
-            {mode === "signin" ? "Secure access" : "Register operator"}
+            {mode === "signin"
+              ? "Secure access"
+              : mode === "forgot"
+                ? "Recover access"
+                : "Register operator"}
           </p>
         </div>
       </div>
@@ -128,6 +143,12 @@ export function LoginForm() {
         </div>
       ) : null}
 
+      {mode === "forgot" ? (
+        <p className="font-mono text-xs leading-relaxed text-muted-foreground">
+          Enter your account email and we&apos;ll send a secure link to set a new password.
+        </p>
+      ) : null}
+
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -141,7 +162,8 @@ export function LoginForm() {
         />
       </div>
 
-      <div className="space-y-2">
+      {mode === "forgot" ? null : (
+        <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
         <Input
           id="password"
@@ -154,7 +176,22 @@ export function LoginForm() {
         {password.length > 0 && !passwordValid ? (
           <p className="font-mono text-xs text-signal">Minimum 6 characters.</p>
         ) : null}
-      </div>
+        </div>
+      )}
+
+      {mode === "signin" ? (
+        <button
+          type="button"
+          className="-mt-2 block font-mono text-xs text-muted-foreground transition-colors hover:text-primary"
+          onClick={() => {
+            setMode("forgot");
+            setError(null);
+            setNotice(null);
+          }}
+        >
+          Forgot password?
+        </button>
+      ) : null}
 
       {error ? <ErrorBanner error={error} title="Authentication failed" /> : null}
       {notice ? (
@@ -165,7 +202,7 @@ export function LoginForm() {
 
       <Button type="submit" disabled={!canSubmit || busy} className="w-full font-mono tracking-wide">
         {busy ? <Spinner className="text-primary-foreground" /> : null}
-        {mode === "signin" ? "Sign in" : "Create account"}
+        {mode === "signin" ? "Sign in" : mode === "forgot" ? "Send reset link" : "Create account"}
       </Button>
 
       <button
