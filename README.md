@@ -1,170 +1,89 @@
-# AttendX: Cyber Tracker
+# ⚡ AttendX — Role-Based Academic Attendance Platform
 
-# LOVABLE MASTER SYSTEM PROMPT: ATTENDX
 
-You are an expert full-stack React and Supabase developer. Your task is to generate and refine a complete, production-ready React web application named **AttendX**.
 
-## 1. PROJECT OVERVIEW
+An enterprise-grade, role-based academic attendance tracking platform built to eliminate proxy attendance, streamline session toggling, and deliver real-time audit logging for institutional workloads. Powered by **React**, **Tailwind CSS**, and **Supabase** with granular **PostgreSQL Row-Level Security (RLS)** policies.
 
-AttendX is a role-based attendance tracking platform for educational institutions. It features strict Row Level Security (RLS) separating "faculty" and "student" roles. 
+---
 
-**Design Aesthetic (CRITICAL):**
+## 🔐 Core Features & Security Architecture
 
-The UI must follow a "Cyber-Dark" and "High-Tech Terminal" aesthetic. 
+- **Role-Based Access Control (RBAC):** Distinct dashboard interfaces, routing permissions, and database policies for Administrators, Instructors, and Students.
+- **Dynamic Session Toggling:** Instructors can launch, monitor, and lock live attendance sessions on demand with microsecond precision.
+- **PostgreSQL Row-Level Security (RLS):** Data access rules enforced directly at the database engine level—preventing unauthorized API data access across student accounts.
+- **Real-Time Telemetry & Auditing:** Real-time log monitoring for active sessions, attendance marking, and data reconciliation.
+- **Cyber-Dark High-Contrast Dashboard:** Optimized for low-light lab environments and high-density system operations.
 
-*   **Backgrounds:** Deep charcoal and true blacks (`bg-gray-900`, `bg-black`).
+---
 
-*   **Primary Accents:** Electric cyan (`text-cyan-400`, `border-cyan-500`) for active states and primary buttons.
+## 🛠️ Tech Stack
 
-*   **Secondary/Highlight Accents:** Bitcoin orange (`text-orange-500`, `bg-orange-500`) for warnings, highlights, or critical call-to-actions.
+- **Frontend:** React.js, Tailwind CSS, Lucide React Icons
+- **Backend / BaaS:** Supabase (Auth, Realtime, Database)
+- **Database:** PostgreSQL with custom PL/pgSQL functions & RLS policies
+- **Version Control & CI/CD:** Git, GitHub, Vercel / Lovable Deployment
 
-*   **Typography:** Monospace fonts for data grids and roll numbers; clean sans-serif for general UI text.
+---
 
-## 2. TECH STACK
+## 🚀 Quickstart & Local Setup
 
-*   **Frontend:** React (Vite), React Router DOM v6
+### Prerequisites
 
-*   **Styling:** Tailwind CSS, Shadcn UI components (dark mode default), Lucide React (icons)
+Ensure you have the following installed on your local environment:
+- **Node.js** (v18.0 or higher)
+- **npm** or **pnpm**
+- A **Supabase** project instance
 
-*   **State Management:** React Context (for Auth), TanStack React Query (for data fetching)
+### 1. Clone the Repository
 
-*   **Backend & DB:** Supabase (PostgreSQL, GoTrue Auth)
-
-## 3. SUPABASE DATABASE SCHEMA & RLS
-
-*Assume the database is already provisioned with the following tables and strict RLS policies are active. Do not write queries that attempt to bypass RLS.*
-
-*   `profiles`: `id` (uuid, references auth.users), `email`, `full_name`, `role` ('faculty' or 'student'), `roll_number`, `created_at`.
-
-*   `classes`: `id`, `teacher_id` (refs profiles), `course_code`, `course_name`, `created_at`.
-
-*   `class_students`: `id`, `class_id`, `student_id` (refs profiles, nullable), `roll_number`, `joined_at`.
-
-*   `attendance_sessions`: `id`, `class_id`, `session_date`, `status` ('open', 'closed').
-
-*   `attendance_records`: `id`, `session_id`, `class_student_id`, `status` ('present', 'absent', 'late').
-
-## 4. APPLICATION ARCHITECTURE & FILE STRUCTURE
-
-Generate the application following this exact directory structure:
-
-```text
-
-src/
-
-├── components/
-
-│   ├── auth/
-
-│   │   ├── LoginForm.jsx
-
-│   │   └── ProtectedRoute.jsx      # Checks role and auth state
-
-│   ├── layout/
-
-│   │   ├── DashboardSidebar.jsx    # Renders diff links based on role
-
-│   │   └── TopNav.jsx
-
-│   ├── faculty/
-
-│   │   ├── ClassManager.jsx        # CRUD for classes
-
-│   │   ├── RosterUpload.jsx        # CSV/Manual roll number entry
-
-│   │   ├── LiveAttendanceTaker.jsx # Data grid for marking presence
-
-│   │   └── ReportGenerator.jsx     # Export to PDF/CSV
-
-│   └── student/
-
-│       ├── StudentDashboard.jsx
-
-│       └── MyAttendanceView.jsx    # Read-only attendance stats
-
-├── services/
-
-│   ├── supabaseClient.js           # Supabase initialization
-
-│   ├── authApi.js                  # Login/Logout/Session management
-
-│   ├── classApi.js                 # Fetching/Creating classes
-
-│   └── attendanceApi.js            # Submitting attendance records
-
-├── contexts/
-
-│   └── AuthContext.jsx             # Provides current user and role
-
-└── App.jsx                         # React Router configuration
-5. CORE FUNCTIONALITY REQUIREMENTS
-
-Authentication Flow:
-
-Users log in via email/password.
-
-On login, fetch the user's profile to determine role.
-
-Route faculty to /faculty/dashboard and student to /student/dashboard.
-
-Faculty Workflows:
-
-Create Class: Form to input course_code and course_name.
-
-Manage Roster: Faculty can add students to a class by roll_number.
-
-Take Attendance:
-
-Faculty creates a new attendance_session for a class.
-
-UI displays a list of all students in class_students for that class.
-
-Faculty clicks Present/Absent/Late toggles.
-
-Save button performs a bulk upsert to attendance_records.
-
-Student Workflows:
-
-View Classes: See all classes where their roll_number or student_id is on the roster.
-
-View Attendance: See aggregate stats (e.g., "85% attendance in CS101") and session-by-session history.
-
-6. CODING STANDARDS
-
-Create distinct, reusable UI components.
-
-Extract all Supabase database calls into the /services/ directory. Do not embed Supabase queries directly inside React UI components.
-
-Handle all loading and error states gracefully using electric cyan spinners or orange error banners.
-
-Ensure all forms are fully controlled and validated before submission.
-
-
-<ElicitationsGroup message="How would you like to proceed with the frontend?">
-  <Elicitation label="Draft the Supabase Service APIs" query="Generate the React service files (classApi.js and attendanceApi.js) that execute the Supabase queries."/>
-  <Elicitation label="Build the LiveAttendanceTaker component" query="Write the LiveAttendanceTaker.jsx React component with the cyber-dark styling and toggle logic."/>
-  <ElicitationsGroup label="Design the AuthContext" query="Generate the AuthContext.jsx file to handle Supabase session state and role-based routing."/>
-</ElicitationsGroup>
-
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://webattendx.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/6409721a-e49b-4101-b8f7-4054dd2c5c7e).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+```bash
+git clone [https://github.com/embeywa1/webattendx.git](https://github.com/embeywa1/webattendx.git)
+cd webattendx
 ```
+2.Install Dependencies
+Bash
+npm install
+
+3. Configure Environment Variables
+Create a .env.local file in the project root directory and attach your Supabase API credentials:
+
+Code snippet
+VITE_SUPABASE_URL=[https://your-supabase-project.supabase.co](https://your-supabase-project.supabase.co)
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+4. Run Development Server
+Bash
+npm run dev
+Open http://localhost:5173 in your browser to view the application.
+
+🗄️ Database Schema & Security Setup
+Execute the schema migration script in your Supabase SQL Editor to initialize required tables and security rules:
+-- Enable Row Level Security (RLS) on Attendance Records
+ALTER TABLE public.attendance_records ENABLE ROW LEVEL SECURITY;
+
+-- Create policy allowing instructors full session management
+CREATE POLICY "Instructors manage sessions"
+ON public.attendance_records
+FOR ALL
+TO authenticated
+USING (auth.jwt() ->> 'role' = 'instructor');
+
+-- Create policy allowing students to view only their own records
+CREATE POLICY "Students read own records"
+ON public.attendance_records
+FOR SELECT
+TO authenticated
+USING (student_id = auth.uid());
+
+📂 Project Structure
+Plaintext
+webattendx/
+├── src/
+│   ├── components/      # Reusable Cyber-Dark UI components
+│   ├── context/         # Auth & Session React Providers
+│   ├── hooks/           # Custom Supabase real-time hooks
+│   ├── pages/           # Admin, Instructor, and Student Dashboards
+│   ├── lib/             # Supabase client configuration
+│   └── styles/          # Tailwind custom utility layers
+├── public/              # Static assets & brand icons
+├── .env.local           # Environment configuration
+└── package.json         # Project manifests and scripts
