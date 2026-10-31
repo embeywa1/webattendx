@@ -29,6 +29,23 @@ function Index() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    // A password-recovery link that falls back to "/" must become the reset
+    // form, not a silent sign-in redirect to the dashboard.
+    const params = new URLSearchParams(window.location.search);
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const isRecoveryLink =
+      params.get("type") === "recovery" ||
+      hash.get("type") === "recovery" ||
+      params.has("code") ||
+      hash.has("access_token");
+    if (isRecoveryLink) {
+      const href = session
+        ? "/reset-password"
+        : `/reset-password${window.location.search}${window.location.hash}`;
+      void navigate({ href, replace: true });
+      return;
+    }
     if (!loading && session) void navigate({ to: dashboardPathFor(role), replace: true });
   }, [loading, session, role, navigate]);
 
